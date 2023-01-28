@@ -45,7 +45,7 @@ public class Service3App {
   public void acceptNewReservation(String message) throws InterruptedException {
     System.out.println("Message received.");
     log.info("Received message " + message);
-    Thread.sleep(2000);
+    Thread.sleep(500); // processing message takes time
     log.debug("Done processing message");
   }
 }

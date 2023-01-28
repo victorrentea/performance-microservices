@@ -23,8 +23,8 @@ public class Service2App {
   public String service2() throws InterruptedException {
     log.info("Start service 2...");
 
-    log.info("Now let's create some intentional delay to emulate working with Files, DB query, CPU task...");
-    Thread.sleep(2 * 1000);
+    log.info("Now let's simulate working with Files, DB query, CPU task...");
+    Thread.sleep(1000);
     log.info("Long job done...");
 
     log.info("Calling service3");
