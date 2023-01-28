@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+
+  rabbit:
+    image: rabbitmq:3-management #has the management plugin preinstalled
+    ports:
+      - "5672:5672" #main port
+      - "15672:15672" #admin port
