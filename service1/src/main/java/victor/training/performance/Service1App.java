@@ -27,4 +27,9 @@ public class Service1App {
     log.info("End service 1");
     return "Hi... from1 " + response;
   }
+  @GetMapping("search")
+  public String search() {
+    String response = rest.getForObject("http://localhost:8082/search", String.class);
+    return "Search results: " + response;
+  }
 }

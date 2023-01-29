@@ -11,3 +11,12 @@ services:
     ports:
       - "5672:5672" #main port
       - "15672:15672" #admin port
+
+  postgres:
+    image: postgres:11
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: db
+    ports:
+      - "5432:5432"
