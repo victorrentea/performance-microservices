@@ -44,12 +44,18 @@ public class Service3App {
   @GetMapping("{id}")
   public String getById(@PathVariable Long id) throws InterruptedException {
     Thread.sleep(6); // db hit
+    String data = rest.getForObject("http://localhost:8084/" + id, String.class);
+    System.out.println("Got from 4: " + data);
     return "Three#" + id;
   }
 
   @GetMapping("many")
   public List<String> getManyById(@RequestParam List<Long> ids) throws InterruptedException {
     Thread.sleep(5); // db hit
+    for (Long id : ids) {
+      String data = rest.getForObject("http://localhost:8084/" + id, String.class);
+      System.out.println("Got from 4: " + data);
+    }
     return ids.stream().map(id -> "Three#" + id).collect(Collectors.toList());
   }
 
