@@ -6,11 +6,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.messaging.Source;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @EnableBinding(Source.class)
@@ -26,11 +29,13 @@ public class Service4App {
   private Source channel;
 
   @GetMapping("{id}")
-  public String getById(@PathVariable Long id) throws InterruptedException {
+  public String getById(@PathVariable String id) throws InterruptedException {
     Thread.sleep(5); // db
     log.info("Got " + id);
     return "Four #"+id;
   }
+
+
   @GetMapping("jurisdiction/{user}")
   public String getUserJurisdiction(@PathVariable String user) throws InterruptedException {
     Thread.sleep(5); // db
@@ -38,7 +43,7 @@ public class Service4App {
   }
 
   @GetMapping("/service4/{id}")
-  public String service4(@PathVariable Long id) {
+  public String service4(@PathVariable String id) {
     log.info("Inside zipkinService 4.. for id=" + id);
     log.info("Sending Message to Service 3");
     Message<String> message = MessageBuilder.withPayload("Hi From Service4!").build();
@@ -46,5 +51,8 @@ public class Service4App {
     log.info("Message Sent");
     return "from4";
   }
+
+
+
 }
 

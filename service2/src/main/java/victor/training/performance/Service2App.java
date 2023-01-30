@@ -1,12 +1,15 @@
 package victor.training.performance;
 
+import io.micrometer.core.annotation.Timed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -24,7 +27,6 @@ public class Service2App {
   public static void main(String[] args) {
     SpringApplication.run(Service2App.class, args);
   }
-
   @Autowired
   private RestTemplate rest;
   @Autowired
@@ -48,26 +50,32 @@ public class Service2App {
     return repo.search(name, status).stream().map(Two::getName).collect(Collectors.toList());
   }
 
-  @PostMapping
-  public void create(@RequestBody String name) {
+  @PostMapping("{name}")
+  public String create(@PathVariable String name) {
     Two two = new Two(name);
     String four = rest.getForObject("http://localhost:8084/" + two.getName(), String.class);
     repo.save(two.setFour(four));
-    rest.postForObject("http://localhost:8083/send-email", two.getId(), String.class);
+    rest.postForObject("http://localhost:8083/send-email/"+two.getId(), null, String.class);
+    return "Ok";
   }
 
   @GetMapping("{id}")
-  public TwoView getById(@PathVariable Long id) {
+  @Timed
+  public TwoView getById(@PathVariable Long id) throws InterruptedException {
     Two two = repo.findById(id).orElseThrow();
-    String sourceName = rest.getForObject("http://localhost:8083/" + two.getThreeSourceId(), String.class);
-    String destinationName = rest.getForObject("http://localhost:8083/" + two.getThreeDestinationId(), String.class);
+//    String sourceName = rest.getForObject("http://localhost:8083/" + two.getThreeSourceId(), String.class);
+//    String destinationName = rest.getForObject("http://localhost:8083/" + two.getThreeDestinationId(), String.class);
 
-//    List<String> twoForOneCall = rest.getForObject("http://localhost:8083/many?ids=" + two.getThreeDestinationId()+","+two.getThreeSourceId(), List.class);
-//    String destinationName = twoForOneCall.get(0);
-//    String sourceName = twoForOneCall.get(1);
+    Thread.sleep(100);
+    List<String> twoForOneCall = rest.getForObject("http://localhost:8083/many?ids="
+        + two.getThreeDestinationId()+","+two.getThreeSourceId(), List.class);
+    String destinationName = twoForOneCall.get(0);
+    String sourceName = twoForOneCall.get(1);
 
     return new TwoView(two.getId(), two.getName(), sourceName, destinationName);
   }
+
+
 
   @EventListener(ApplicationStartedEvent.class)
   public void insertDummyData() {
@@ -83,6 +91,13 @@ public class Service2App {
   }
 
 
+  @Bean
+  public static RestTemplate customRestTemplate() {
+    HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+    clientHttpRequestFactory.setConnectTimeout(5000);
+    return new RestTemplate(clientHttpRequestFactory);
+  }
+
   @GetMapping("/service2")
   public String service2() throws InterruptedException {
     log.info("Start service 2...");
@@ -96,6 +111,4 @@ public class Service2App {
     log.info("Got response from service3");
     return "from2 " + response;
   }
-
 }
-

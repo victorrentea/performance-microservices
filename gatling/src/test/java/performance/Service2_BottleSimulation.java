@@ -12,7 +12,7 @@ import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
 import static io.gatling.javaapi.http.HttpDsl.http;
 
-public class Service2_GetByIdSimulation extends Simulation {
+public class Service2_BottleSimulation extends Simulation {
 
   {
     HttpProtocolBuilder httpProtocol = http
@@ -27,11 +27,11 @@ public class Service2_GetByIdSimulation extends Simulation {
 
     ScenarioBuilder scn = scenario(getClass().getSimpleName())
       .exec(
-        http("get by id")
-          .get("/1")
+        http("bottle")
+          .get("/bottle")
           .headers(headers_0)
       );
 
-    setUp(scn.injectClosed(constantConcurrentUsers(40).during(Duration.ofSeconds(5)))).protocols(httpProtocol);
+    setUp(scn.injectClosed(constantConcurrentUsers(1000).during(Duration.ofSeconds(5)))).protocols(httpProtocol);
   }
 }

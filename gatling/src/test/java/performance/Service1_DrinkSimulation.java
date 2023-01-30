@@ -8,10 +8,11 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.gatling.javaapi.core.CoreDsl.*;
+import static io.gatling.javaapi.core.CoreDsl.constantUsersPerSec;
+import static io.gatling.javaapi.core.CoreDsl.scenario;
 import static io.gatling.javaapi.http.HttpDsl.http;
 
-public class Service1_GetByIdSimulation extends Simulation {
+public class Service1_DrinkSimulation extends Simulation {
 
   {
     HttpProtocolBuilder httpProtocol = http
@@ -20,11 +21,15 @@ public class Service1_GetByIdSimulation extends Simulation {
       .upgradeInsecureRequestsHeader("1")
       .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36");
 
-    ScenarioBuilder scn = scenario(getClass().getSimpleName())
-      .exec(http("getById").get("/1").headers(Map.of()));
+    Map<CharSequence, String> headers = new HashMap<>();
+    headers.put("Cache-Control", "max-age=0");
+    headers.put("Proxy-Connection", "keep-alive");
 
-    setUp(scn.injectOpen(constantUsersPerSec(300).during(Duration.ofSeconds(10))))
-            .protocols(httpProtocol);
+    ScenarioBuilder scn = scenario(getClass().getSimpleName())
+      .exec(http("drink").get("/drink/nonblocking/parallel").headers(Map.of()));
+//      .exec(http("drink").get("/drink/nonblocking/parallel/unbounded").headers(Map.of()));
+
+    setUp(scn.injectOpen(constantUsersPerSec(   1000).during(Duration.ofSeconds(5)))).protocols(httpProtocol);
 
 
 //    setUp(

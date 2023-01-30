@@ -1,14 +1,16 @@
-import lombok.SneakyThrows;
-import lombok.val;
 
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class IDEPathHelperJava {
-  @SneakyThrows
   public static Path projectRootDir() {
-    return Paths.get(IDEPathHelperJava.class.getClassLoader().getResource("gatling.conf").toURI())
-            .getParent().getParent().getParent();
+    try {
+      return Paths.get(IDEPathHelperJava.class.getClassLoader().getResource("gatling.conf").toURI())
+              .getParent().getParent().getParent();
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public static Path mavenTargetDirectory() {

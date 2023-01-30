@@ -1,6 +1,5 @@
 import io.gatling.recorder.GatlingRecorder;
 import io.gatling.recorder.config.RecorderPropertiesBuilder;
-import lombok.val;
 import scala.Some;
 
 public class RecorderJava {

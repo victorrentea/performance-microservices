@@ -16,7 +16,7 @@ import java.io.IOException;
 @Configuration
 public class CommonConfig {
   @Bean
-  public RestTemplate restTemplate() {
+  public RestTemplate rest() {
     return new RestTemplate();
     // it is critical to define RestTemplate as a @Bean rather than instantiating it
     // at usage point, to allow Apache Sleuth to hack it to add request headers to propagate its Trace ID

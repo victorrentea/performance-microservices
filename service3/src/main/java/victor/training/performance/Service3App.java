@@ -58,6 +58,10 @@ public class Service3App {
     }
     return ids.stream().map(id -> "Three#" + id).collect(Collectors.toList());
   }
+  @PostMapping("send-email/{recipient}")
+  public void sendEmail(@PathVariable String recipient) {
+    System.out.println("Sending email to " + recipient);
+  }
 
   @ServiceActivator(inputChannel = "input")
   public void acceptNewReservation(String message) throws InterruptedException {
@@ -65,6 +69,12 @@ public class Service3App {
     log.info("Received message " + message);
     Thread.sleep(50); // processing message takes time
     log.debug("Done processing message");
+  }
+
+  @GetMapping("fast")
+  public String fast() throws InterruptedException {
+    Thread.sleep(20);//db
+    return "fast";
   }
 }
 

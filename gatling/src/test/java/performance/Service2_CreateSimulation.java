@@ -2,17 +2,17 @@ package performance;
 
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
+import io.gatling.javaapi.http.HttpDsl;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
-import static io.gatling.javaapi.core.CoreDsl.scenario;
+import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.http;
 
-public class Service2_GetByIdSimulation extends Simulation {
+public class Service2_CreateSimulation extends Simulation {
 
   {
     HttpProtocolBuilder httpProtocol = http
@@ -23,14 +23,21 @@ public class Service2_GetByIdSimulation extends Simulation {
 
     Map<CharSequence, String> headers_0 = new HashMap<>();
     headers_0.put("Cache-Control", "max-age=0");
+    headers_0.put("Content-Type", "application/json");
     headers_0.put("Proxy-Connection", "keep-alive");
 
     ScenarioBuilder scn = scenario(getClass().getSimpleName())
       .exec(
-        http("get by id")
-          .get("/1")
+        http("create")
+          .post("/test")
           .headers(headers_0)
-      );
+      )
+      .exec(
+        http("search")
+          .get("/search")
+          .headers(headers_0)
+      )
+            ;
 
     setUp(scn.injectClosed(constantConcurrentUsers(40).during(Duration.ofSeconds(5)))).protocols(httpProtocol);
   }
