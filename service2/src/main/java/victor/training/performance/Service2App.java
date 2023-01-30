@@ -1,45 +1,87 @@
 package victor.training.performance;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.lang.Nullable;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import java.util.List;
-
-import static javax.persistence.CascadeType.PERSIST;
-
-@Slf4j
 @RestController
 @SpringBootApplication
+@Transactional
 public class Service2App {
+  private static final Logger log = LoggerFactory.getLogger(Service2App.class);
+
   public static void main(String[] args) {
     SpringApplication.run(Service2App.class, args);
   }
 
   @Autowired
   private RestTemplate rest;
-
   @Autowired
-  private CustomerRepo repo;
+  private TwoRepo repo;
+
+  private final Map<String, Deque<String>> lastNamesSearchedByStatus = Collections.synchronizedMap(new HashMap<>());
+
+  @GetMapping("/search")
+  public  List<String> search(
+          @RequestParam(required = false) String name,
+          @RequestParam(required = false) String status) {
+    return doSearch(name, status);
+  }
+
+  private synchronized List<String> doSearch(String name, String status) {
+    if (status != null) {
+      Deque<String> deque = lastNamesSearchedByStatus.computeIfAbsent(status, k -> new LinkedList<>());
+      deque.add(name);
+      if (deque.size() > 10) deque.removeLast();
+    }
+    return repo.search(name, status).stream().map(Two::getName).collect(Collectors.toList());
+  }
+
+  @PostMapping
+  public void create(@RequestBody String name) {
+    Two two = new Two(name);
+    String four = rest.getForObject("http://localhost:8084/" + two.getName(), String.class);
+    repo.save(two.setFour(four));
+    rest.postForObject("http://localhost:8083/send-email", two.getId(), String.class);
+  }
+
+  @GetMapping("{id}")
+  public TwoView getById(@PathVariable Long id) {
+    Two two = repo.findById(id).orElseThrow();
+    String sourceName = rest.getForObject("http://localhost:8083/" + two.getThreeSourceId(), String.class);
+    String destinationName = rest.getForObject("http://localhost:8083/" + two.getThreeDestinationId(), String.class);
+
+//    List<String> twoForOneCall = rest.getForObject("http://localhost:8083/many?ids=" + two.getThreeDestinationId()+","+two.getThreeSourceId(), List.class);
+//    String destinationName = twoForOneCall.get(0);
+//    String sourceName = twoForOneCall.get(1);
+
+    return new TwoView(two.getId(), two.getName(), sourceName, destinationName);
+  }
+
+  @EventListener(ApplicationStartedEvent.class)
+  public void insertDummyData() {
+    repo.saveAll(IntStream.range(0, 20).mapToObj(this::dummyData).collect(Collectors.toList()));
+  }
+
+  private Two dummyData(int i) {
+    return new Two("John Doe " + UUID.randomUUID())
+            .setStatus(new TwoStatus("Status" + i))
+            .setThreeSourceId(1L)
+            .setThreeDestinationId(2L)
+            .setCategory(new TwoCategory("Category" + i));
+  }
+
 
   @GetMapping("/service2")
   public String service2() throws InterruptedException {
@@ -55,76 +97,5 @@ public class Service2App {
     return "from2 " + response;
   }
 
-  @GetMapping("/search")
-  public List<Customer> search(@RequestParam(required = false) String name,
-                               @RequestParam(required = false) String city) {
-    return repo.search(name, city);
-  }
-
-  @EventListener(ApplicationStartedEvent.class)
-  public void insertDummyData() {
-    for (int i = 0; i < 20; i++) {
-      repo.save(
-              new Customer("John Doe" + i)
-                      .setCity(new City("Bucharest" + i))
-                      .setCategory(new Category("Category" + i)));
-    }
-  }
-}
-
-@Getter
-@Setter
-@NoArgsConstructor
-@Entity
-class Customer {
-  @Id
-  @GeneratedValue
-  private Long id;
-  private String name;
-  @ManyToOne(cascade = PERSIST) // 4test
-  private City city;
-  @ManyToOne(cascade = PERSIST) // 4test
-  private Category category;
-
-  public Customer(String name) {
-    this.name = name;
-  }
-}
-
-interface CustomerRepo extends JpaRepository<Customer, Long> {
-  @Query("SELECT c FROM Customer c " +
-         "WHERE (:name is null OR UPPER(c.name) LIKE UPPER('%' || :name || '%'))" +
-         "AND (:cityName is null OR c.city.name = :cityName)"
-        )
-  List<Customer> search(@Nullable String name, @Nullable String cityName);
-
-}
-
-@Data
-@Entity
-@NoArgsConstructor
-class City {
-  @Id
-  @GeneratedValue
-  private Long id;
-  private String name;
-
-  public City(String name) {
-    this.name = name;
-  }
-}
-
-@Data
-@Entity
-@NoArgsConstructor
-class Category {
-  @Id
-  @GeneratedValue
-  private Long id;
-  private String name;
-
-  public Category(String name) {
-    this.name = name;
-  }
 }
 

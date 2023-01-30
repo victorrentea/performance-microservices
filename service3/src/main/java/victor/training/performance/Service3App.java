@@ -7,13 +7,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.messaging.Sink;
 import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @EnableBinding(Sink.class)
@@ -39,6 +39,18 @@ public class Service3App {
     }
     log.info("End service 3");
     return "from3 " + String.join(" ", responses4);
+  }
+
+  @GetMapping("{id}")
+  public String getById(@PathVariable Long id) throws InterruptedException {
+    Thread.sleep(6); // db hit
+    return "Three#" + id;
+  }
+
+  @GetMapping("many")
+  public List<String> getManyById(@RequestParam List<Long> ids) throws InterruptedException {
+    Thread.sleep(5); // db hit
+    return ids.stream().map(id -> "Three#" + id).collect(Collectors.toList());
   }
 
   @ServiceActivator(inputChannel = "input")

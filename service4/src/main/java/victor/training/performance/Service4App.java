@@ -25,6 +25,12 @@ public class Service4App {
   @Autowired
   private Source channel;
 
+  @GetMapping("{id}")
+  public String getById(@PathVariable Long id) throws InterruptedException {
+    Thread.sleep(5); // db access
+    return "Four #"+id;
+  }
+
   @GetMapping("/service4/{id}")
   public String service4(@PathVariable Long id) {
     log.info("Inside zipkinService 4.. for id=" + id);
