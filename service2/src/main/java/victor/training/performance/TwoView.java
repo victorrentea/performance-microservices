@@ -1,8 +1,11 @@
 package victor.training.performance;
 
+import victor.training.performance.GDPRFilter.VisibleFor;
+
 public class TwoView {
   public Long id;
   public String name;
+  @VisibleFor("admin")
   public String threeSourceName;
   public String threeDestinationName;
 

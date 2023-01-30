@@ -27,9 +27,14 @@ public class Service4App {
 
   @GetMapping("{id}")
   public String getById(@PathVariable Long id) throws InterruptedException {
-    Thread.sleep(5); // db access
+    Thread.sleep(5); // db
     log.info("Got " + id);
     return "Four #"+id;
+  }
+  @GetMapping("jurisdiction/{user}")
+  public String getUserJurisdiction(@PathVariable String user) throws InterruptedException {
+    Thread.sleep(5); // db
+    return "admin";
   }
 
   @GetMapping("/service4/{id}")
