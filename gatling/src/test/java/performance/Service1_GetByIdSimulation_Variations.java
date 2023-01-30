@@ -11,7 +11,7 @@ import java.util.Map;
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.http;
 
-public class Service1_GetByIdSimulation extends Simulation {
+public class Service1_GetByIdSimulation_Variations extends Simulation {
 
   {
     HttpProtocolBuilder httpProtocol = http
@@ -30,10 +30,6 @@ public class Service1_GetByIdSimulation extends Simulation {
           .get("/1")
           .headers(headers_0)
       );
-
-    setUp(scn.injectOpen(constantUsersPerSec(1000).during(Duration.ofSeconds(10))))
-            .protocols(httpProtocol);
-
 
     setUp(
             scn.injectOpen(

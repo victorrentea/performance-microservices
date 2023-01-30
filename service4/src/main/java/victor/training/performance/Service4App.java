@@ -28,6 +28,7 @@ public class Service4App {
   @GetMapping("{id}")
   public String getById(@PathVariable Long id) throws InterruptedException {
     Thread.sleep(5); // db access
+    log.info("Got " + id);
     return "Four #"+id;
   }
 

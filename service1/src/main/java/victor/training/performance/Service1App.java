@@ -24,6 +24,7 @@ public class Service1App {
   private RestTemplate rest;
   @GetMapping("{id}")
   public Response get(@PathVariable Long id) {
+    log.info("Entry ");
     String three = rest.getForObject("http://localhost:8083/"+id, String.class);
     String four = rest.getForObject("http://localhost:8084/" +id, String.class);
     return new Response(three, four);
