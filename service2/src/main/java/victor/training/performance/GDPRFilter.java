@@ -17,9 +17,6 @@ import java.lang.reflect.Field;
 @Aspect
 public class GDPRFilter {
 
-  @Autowired
-  private RestTemplate rest;
-
   @Retention(RetentionPolicy.RUNTIME)
   public @interface VisibleFor{
     String value();
