@@ -43,7 +43,7 @@ public class Barman2Parallel {
 
   @GetMapping("buy")
   public void acceptMoneyFromClient() {
-    log.debug("This is NOT allowed to timeout!!!");
+    log.debug("This is NOT allowed to timeout!!! because it takes the client's money");
   }
 
 

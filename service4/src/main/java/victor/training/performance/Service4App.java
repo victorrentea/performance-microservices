@@ -8,14 +8,12 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.messaging.Source;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.integration.redis.util.RedisLockRegistry;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @EnableBinding(Source.class)
@@ -28,12 +26,9 @@ public class Service4App {
   }
 
 
-
-  private static final String LOCK_NAME = "lock";
-
   @Bean(destroyMethod = "destroy")
   public RedisLockRegistry redisLockRegistry(RedisConnectionFactory redisConnectionFactory) {
-    return new RedisLockRegistry(redisConnectionFactory, LOCK_NAME);
+    return new RedisLockRegistry(redisConnectionFactory, "lock");
   }
 
   @Autowired
