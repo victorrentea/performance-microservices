@@ -1,4 +1,4 @@
-package victor.training.performance.bar;
+package victor.training.performance.drinks;
 
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;

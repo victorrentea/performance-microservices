@@ -1,17 +1,17 @@
 {
   "request": {
     "method": "GET",
-    "urlPathPattern": "/vodka"
+    "urlPathPattern": "/get-many"
   },
   "response": {
     "status": 200,
     "headers": {
       "Content-Type": "application/json"
     },
-    "jsonBody" : {
-      "brand": "Deadly☠️"
-    },
-
-    "fixedDelayMilliseconds": 1000
+    "jsonBody": [
+      "one",
+      "two"
+    ],
+    "fixedDelayMilliseconds": 6
   }
 }

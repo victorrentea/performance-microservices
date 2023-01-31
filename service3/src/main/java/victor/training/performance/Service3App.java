@@ -71,10 +71,5 @@ public class Service3App {
     log.debug("Done processing message");
   }
 
-  @GetMapping("fast")
-  public String fast() throws InterruptedException {
-    Thread.sleep(20);//db
-    return "fast";
-  }
 }
 

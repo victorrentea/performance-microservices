@@ -1,4 +1,4 @@
-package victor.training.performance;
+package victor.training.performance.support;
 
 import victor.training.performance.GDPRFilter.VisibleFor;
 

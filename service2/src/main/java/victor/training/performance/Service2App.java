@@ -1,18 +1,19 @@
 package victor.training.performance;
 
-import io.micrometer.core.annotation.Timed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import victor.training.performance.support.Two;
+import victor.training.performance.support.TwoCategory;
+import victor.training.performance.support.TwoRepo;
+import victor.training.performance.support.TwoStatus;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,49 +33,6 @@ public class Service2App {
   @Autowired
   private TwoRepo repo;
 
-  private final Map<String, Deque<String>> lastNamesSearchedByStatus = Collections.synchronizedMap(new HashMap<>());
-
-  @GetMapping("/search")
-  public  List<String> search(
-          @RequestParam(required = false) String name,
-          @RequestParam(required = false) String status) {
-    return doSearch(name, status);
-  }
-
-  private synchronized List<String> doSearch(String name, String status) {
-    if (status != null) {
-      Deque<String> deque = lastNamesSearchedByStatus.computeIfAbsent(status, k -> new LinkedList<>());
-      deque.add(name);
-      if (deque.size() > 10) deque.removeLast();
-    }
-    return repo.search(name, status).stream().map(Two::getName).collect(Collectors.toList());
-  }
-
-  @PostMapping("{name}")
-  public String create(@PathVariable String name) {
-    Two two = new Two(name);
-    String four = rest.getForObject("http://localhost:8084/" + two.getName(), String.class);
-    repo.save(two.setFour(four));
-    rest.postForObject("http://localhost:8083/send-email/"+two.getId(), null, String.class);
-    return "Ok";
-  }
-
-  @GetMapping("{id}")
-  @Timed
-  public TwoView getById(@PathVariable Long id) throws InterruptedException {
-    Two two = repo.findById(id).orElseThrow();
-//    String sourceName = rest.getForObject("http://localhost:8083/" + two.getThreeSourceId(), String.class);
-//    String destinationName = rest.getForObject("http://localhost:8083/" + two.getThreeDestinationId(), String.class);
-
-    Thread.sleep(100);
-    List<String> twoForOneCall = rest.getForObject("http://localhost:8083/many?ids="
-        + two.getThreeDestinationId()+","+two.getThreeSourceId(), List.class);
-    String destinationName = twoForOneCall.get(0);
-    String sourceName = twoForOneCall.get(1);
-
-    return new TwoView(two.getId(), two.getName(), sourceName, destinationName);
-  }
-
 
 
   @EventListener(ApplicationStartedEvent.class)
@@ -88,14 +46,6 @@ public class Service2App {
             .setThreeSourceId(1L)
             .setThreeDestinationId(2L)
             .setCategory(new TwoCategory("Category" + i));
-  }
-
-
-  @Bean
-  public static RestTemplate customRestTemplate() {
-    HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
-    clientHttpRequestFactory.setConnectTimeout(5000);
-    return new RestTemplate(clientHttpRequestFactory);
   }
 
   @GetMapping("/service2")

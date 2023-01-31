@@ -11,11 +11,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.5.14</version>
-		</dependency>
-		<dependency>
 			<groupId>victor.training</groupId>
 			<artifactId>common</artifactId>
 		</dependency>
@@ -31,6 +26,12 @@
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>42.4.3</version>
+		</dependency>
+		<dependency>
+			<!-- DEPRECATION NOTICE: used only to demonstrate an unknown performance issue. -->
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.14</version>
 		</dependency>
 	</dependencies>
 	<build>

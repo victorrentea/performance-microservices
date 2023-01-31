@@ -3,52 +3,46 @@ package victor.training.performance;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.integration.support.locks.LockRegistry;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 import static java.lang.Thread.sleep;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-public class LockService {
+public class RedisLock {
   private static final String MY_LOCK_KEY = "someLockKey";
   private final LockRegistry lockRegistry;
 
 
   @GetMapping("lock")
-  public String properLock() {
-    Lock lock = null;
+  public String properLock() throws InterruptedException {
+    Lock lock;
     try {
       lock = lockRegistry.obtain(MY_LOCK_KEY);
     } catch (Exception e) {
-      // in a production environment this should be a log statement
-      System.out.println(String.format("Unable to obtain lock: %s", MY_LOCK_KEY));
+      throw new RuntimeException("Cannot obtain lock: " + MY_LOCK_KEY, e);
     }
-    String returnVal = null;
     try {
-      if (lock.tryLock()) {
-        returnVal =  "jdbc lock successful";
-        log.info("Enter critical section");
+      //  🛑 childish/initial parameters ~> tune timeouts considering load to avoid OOME ~>
+      if (lock.tryLock(1, MINUTES)) {
+        log.info("ENTER critical section");
         sleep(3000);
+        log.info("Perform critical action ☠️ ....");
         log.info("EXIT critical section");
+        return "Critical action performed";
+      } else {
+        return "ERROR Could not obtain the lock in the given timeframe";
       }
-      else{
-        returnVal = "jdbc lock unsuccessful";
-      }
-
-    } catch (Exception e) {
-      // in a production environment this should log and do something else
-      e.printStackTrace();
     } finally {
-      // always have this in a `finally` block in case anything goes wrong
-      lock.unlock();
+      lock.unlock(); // DON'T FORGET THIS finally {
     }
-
-    return returnVal;
   }
 
 }

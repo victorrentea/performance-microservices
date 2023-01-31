@@ -1,4 +1,4 @@
-package victor.training.performance;
+package victor.training.performance.support;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

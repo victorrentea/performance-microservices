@@ -21,14 +21,15 @@ public class GDPRFilter {
   private RestTemplate rest;
 
   @Retention(RetentionPolicy.RUNTIME)
-  @interface VisibleFor{
+  public @interface VisibleFor{
     String value();
   }
 
   @Around("@within(org.springframework.web.bind.annotation.RestController))") // method of @Facade classes
   public Object clearNonVisibleFields(ProceedingJoinPoint pjp) throws Throwable {
     String currentUser = "uu"; //pretend
-    String jurisdiction = new RestTemplate().getForObject("http://localhost:8084/jurisdiction/" + currentUser, String.class);
+    //  🛑 Invisible network call per each request ~> awareness++, cache. here: bring this data in AccessToken👌
+    String userJurisdiction = new RestTemplate().getForObject("http://localhost:9999/fast5ms", String.class);
     Object result = pjp.proceed();
     if (result == null) {
       return result;
@@ -40,7 +41,7 @@ public class GDPRFilter {
       field.setAccessible(true);
       VisibleFor annot = field.getAnnotation(VisibleFor.class);
       if (annot != null) {
-        if (!annot.value().equals(jurisdiction)) {
+        if (!annot.value().equals(userJurisdiction)) {
           field.set(result, null);
         }
       }
