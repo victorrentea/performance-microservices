@@ -41,12 +41,6 @@ public class Service4App {
   }
 
 
-  @GetMapping("jurisdiction/{user}")
-  public String getUserJurisdiction(@PathVariable String user) throws InterruptedException {
-    Thread.sleep(5); // db
-    return "admin";
-  }
-
   @GetMapping("/service4/{id}")
   public String service4(@PathVariable String id) {
     log.info("Inside zipkinService 4.. for id=" + id);

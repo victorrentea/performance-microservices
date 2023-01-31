@@ -12,6 +12,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.locks.Lock;
 
 import static java.lang.Thread.sleep;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Slf4j
@@ -23,32 +24,21 @@ public class RedisLock {
 
   @GetMapping("lock")
   public String redisLock() throws InterruptedException {
-    Lock lock;
-    try {
-      lock = lockRegistry.obtain(MY_LOCK_KEY);
-    } catch (Exception e) {
-      throw new RuntimeException("Cannot obtain lock: " + MY_LOCK_KEY, e);
-    }
+    Lock lock = lockRegistry.obtain(MY_LOCK_KEY);
     try {
       //  🛑 childish/initial parameters ~> tune timeouts considering load to avoid OOME ~>
-      if (lock.tryLock(2, SECONDS)) { // how many threads at one point in time can be blocked here ?
-        // hint: my machine has 10 CPUs =>
-        // // TODO EXPECT 8 = (10-1)-1(that entered) - blocking the entire commonPool in JVM
+      if (lock.tryLock(2, MINUTES)) {
         log.info("ENTER critical section");
-
         sleep(1000);
-        log.info("Perform critical action ☠️ ....");
+        log.info("Critical action ☠️ ....");
         log.info("EXIT critical section ");
-        //         "Critical action performed";
+        return "SUCCESS";
       } else {
-        //        return "ERROR Could not obtain the lock in the given timeframe";
+        return "ERROR: Timed out waiting for the lock";
       }
     } finally {
-      lock.unlock(); // DON'T FORGET THIS finally {
+      lock.unlock(); // MUST NOT FORGET
     }
-
-    // bad practice: call a method async oassing a large object kept in mem until the func runs, without putting a queue max size,
-    return "Got your job ty!";
   }
 
 }

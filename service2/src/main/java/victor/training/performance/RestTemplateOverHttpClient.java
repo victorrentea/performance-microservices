@@ -24,7 +24,7 @@ class RestTemplateOverHttpClient {
     @Bean
     public static RestTemplate customRestTemplate() {
       // copy-pasted from Stack Overflow (like a Pro)
-      //  🛑 Using a large unknown framework without bechmarking it
+      //  🛑 Using a large unknown framework without benchmarking it
       HttpComponentsClientHttpRequestFactory clientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory();
       clientHttpRequestFactory.setConnectTimeout(5000);
       return new RestTemplate(clientHttpRequestFactory);
