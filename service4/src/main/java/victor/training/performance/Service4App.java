@@ -7,7 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.messaging.Source;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.integration.redis.util.RedisLockRegistry;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,15 @@ public class Service4App {
 
   public static void main(String[] args) {
     SpringApplication.run(Service4App.class, args);
+  }
+
+
+
+  private static final String LOCK_NAME = "lock";
+
+  @Bean(destroyMethod = "destroy")
+  public RedisLockRegistry redisLockRegistry(RedisConnectionFactory redisConnectionFactory) {
+    return new RedisLockRegistry(redisConnectionFactory, LOCK_NAME);
   }
 
   @Autowired
