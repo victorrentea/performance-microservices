@@ -17,7 +17,7 @@ public class Barman1Sequential {
   @Autowired
   private RestTemplate rest;
 
-  @GetMapping("/drink/sequential")
+  @GetMapping({"/drink/sequential","/drink"})
   public DillyDilly drink() {
     long t0 = currentTimeMillis();
     //  🛑 independent GET executed sequentially ~> parallelize

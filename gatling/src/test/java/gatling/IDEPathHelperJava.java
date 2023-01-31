@@ -1,3 +1,4 @@
+package gatling;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;

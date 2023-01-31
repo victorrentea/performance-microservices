@@ -25,7 +25,6 @@ public class Service4App {
     SpringApplication.run(Service4App.class, args);
   }
 
-
   @Bean(destroyMethod = "destroy")
   public RedisLockRegistry redisLockRegistry(RedisConnectionFactory redisConnectionFactory) {
     return new RedisLockRegistry(redisConnectionFactory, "lock");

@@ -1,8 +1,9 @@
-import io.gatling.recorder.GatlingRecorder;
+package gatling;
+
 import io.gatling.recorder.config.RecorderPropertiesBuilder;
 import scala.Some;
 
-public class RecorderJava {
+public class GatlingRecorder {
 
   public static void main(String[] args) {
 
@@ -11,7 +12,7 @@ public class RecorderJava {
             .resourcesFolder(IDEPathHelperJava.mavenResourcesDirectory().toString())
             .simulationPackage("performance");
 
-    GatlingRecorder.fromMap(props.build(), Some.apply(IDEPathHelperJava.recorderConfigFile()));
+    io.gatling.recorder.GatlingRecorder.fromMap(props.build(), Some.apply(IDEPathHelperJava.recorderConfigFile()));
 
   }
 }

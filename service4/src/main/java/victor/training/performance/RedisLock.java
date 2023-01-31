@@ -14,10 +14,6 @@ import java.util.concurrent.locks.Lock;
 import static java.lang.Thread.sleep;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-
-class SomeData1KB {
-  int[] data = new int[1024000/8];
-}
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -26,16 +22,7 @@ public class RedisLock {
   private final LockRegistry lockRegistry;
 
   @GetMapping("lock")
-  public String properLock() throws InterruptedException {
-    SomeData1KB data = repoFindById();
-    CompletableFuture.runAsync(() ->longRunningProcess(data)); // fire and forget method on ForkJoinPool
-    // any thread pool has a queue. WHAT SIZE? idn ∞ ?!!
-
-    // bad practice: call a method async oassing a large object kept in mem until the func runs, without putting a queue max size,
-    return "Got your job ty!";
-  }
-  @SneakyThrows
-  private void longRunningProcess(SomeData1KB data)  {
+  public String redisLock() throws InterruptedException {
     Lock lock;
     try {
       lock = lockRegistry.obtain(MY_LOCK_KEY);
@@ -51,18 +38,17 @@ public class RedisLock {
 
         sleep(1000);
         log.info("Perform critical action ☠️ ....");
-        log.info("EXIT critical section " + data);
-//         "Critical action performed";
+        log.info("EXIT critical section ");
+        //         "Critical action performed";
       } else {
-//        return "ERROR Could not obtain the lock in the given timeframe";
+        //        return "ERROR Could not obtain the lock in the given timeframe";
       }
     } finally {
       lock.unlock(); // DON'T FORGET THIS finally {
     }
-  }
 
-  private SomeData1KB repoFindById() {
-    return new SomeData1KB();
+    // bad practice: call a method async oassing a large object kept in mem until the func runs, without putting a queue max size,
+    return "Got your job ty!";
   }
 
 }

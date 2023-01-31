@@ -1,5 +1,6 @@
 global:
-  scrape_interval: 0s100ms
+  scrape_interval: 15s
+#  scrape_interval: 0s100ms
   evaluation_interval: 1s
 
 # A scrape configuration containing exactly one endpoint to scrape:
