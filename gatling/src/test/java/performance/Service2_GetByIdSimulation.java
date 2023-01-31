@@ -32,6 +32,8 @@ public class Service2_GetByIdSimulation extends Simulation {
           .headers(headers_0)
       );
 
-    setUp(scn.injectClosed(constantConcurrentUsers(40).during(Duration.ofSeconds(5)))).protocols(httpProtocol);
+//    setUp(scn.injectClosed(constantConcurrentUsers(40) // inject Open means that if you delay an answer, another clinet will come -> they will accumulate
+    setUp(scn.injectClosed(constantConcurrentUsers(40)
+            .during(Duration.ofSeconds(5)))).protocols(httpProtocol);
   }
 }

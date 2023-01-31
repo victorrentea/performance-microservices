@@ -1,10 +1,12 @@
 package victor.training.performance.support;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import victor.training.performance.GDPRFilter.VisibleFor;
 
-public class TwoView {
+public class TwoView { // Dto returned from a controller method
   public Long id;
   public String name;
+//  @JsonView({PatientView.class, Doctor.class})
   @VisibleFor("admin")
   public String threeSourceName;
   public String threeDestinationName;

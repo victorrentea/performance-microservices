@@ -25,8 +25,14 @@ public class GDPRFilter {
   @Around("@within(org.springframework.web.bind.annotation.RestController))") // method of @Facade classes
   public Object clearNonVisibleFields(ProceedingJoinPoint pjp) throws Throwable {
     String currentUser = "uu"; //pretend
-    //  🛑 Invisible network call per each request ~> awareness++, cache. here: bring this data in AccessToken👌
-    String userJurisdiction = new RestTemplate().getForObject("http://localhost:9999/fast5ms", String.class);
+    //  🛑 Invisible network call per each request ~> awareness++, cache.
+    //     here: bring this data in AccessToken👌 or via request http headers
+    //     at least make sure the DTO returned DOES containt @VisibleFor before firing the request/
+//    String userJurisdiction = new RestTemplate()
+//            .getForObject("http://localhost:9999/fast5ms", String.class);
+
+
+    String userJurisdiction = "SecurityContextHolder.getAuthentifcati....getToken...getClaim..";
     Object result = pjp.proceed();
     if (result == null) {
       return result;
