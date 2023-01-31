@@ -46,7 +46,7 @@ public class RedisLock {
       if (lock.tryLock(2, SECONDS)) {
         log.info("ENTER critical section");
 
-        sleep(3000);
+        sleep(1000);
         log.info("Perform critical action ☠️ ....");
         log.info("EXIT critical section " + data);
 //         "Critical action performed";
