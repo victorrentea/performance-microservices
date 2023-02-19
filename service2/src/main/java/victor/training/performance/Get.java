@@ -56,22 +56,18 @@ public class Get {
     @Autowired
     MeterRegistry reg;
 
-    @Timed // aka @Metered
+    @Timed
     public List<String> fetchMany(List<Long> ids) {
       String idCsv = ids.stream().map(Objects::toString).collect(Collectors.joining(","));
       log.info("Sending a bulk request for all ids: " + ids);
       Timer timer = reg.timer("custommetric");
       long t0 = currentTimeMillis();
-      List<String> bulkResponse = localCall(idCsv);
+      List<String> bulkResponse = rest.getForObject("http://localhost:9999/get-many?ids=" + idCsv, List.class);
       long t1 = currentTimeMillis();
       timer.record(t1-t0, TimeUnit.MILLISECONDS);
       log.info("Got bulk response: " + bulkResponse);
       return bulkResponse;
     }
 
-//    @Timed// does NOT work here!
-    private List<String> localCall(String idCsv) {
-      return rest.getForObject("http://localhost:9999/get-many?ids=" + idCsv, List.class);
-    }
   }
 }
